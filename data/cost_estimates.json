@@ -1,0 +1,30 @@
+{
+  "currency": "PHP",
+  "values_are": "ESTIMATES",
+  "categories": {
+    "transport": {
+      "label": "Transport",
+      "unit": "per_person_trip",
+      "low": 200,
+      "high": 1500
+    },
+    "food_water": {
+      "label": "Food and water",
+      "unit": "per_person_day",
+      "low": 300,
+      "high": 800
+    },
+    "fees_guide": {
+      "label": "Fees / guide",
+      "unit": "per_person_trip",
+      "low": 100,
+      "high": 1500
+    },
+    "gear_rental": {
+      "label": "Gear rental",
+      "unit": "per_person_day",
+      "low": 0,
+      "high": 700
+    }
+  }
+}

@@ -7,7 +7,7 @@ input filter -> random token + XML wrap -> system prompt + sandwich reminder
 
 import streamlit as st
 
-from core import config, llm_client, prompts, security
+from core import config, pipeline, security
 from core.state import init_state
 
 init_state()
@@ -81,30 +81,24 @@ def handle(prompt):
         if not m.get("blocked")
     ]
     history.append({"role": "user", "content": check.cleaned})
-    llm_messages = prompts.build_messages(
-        llm_client.trim_history(history), ss.token, ss.experience
-    )
-
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            result = llm_client.ask(llm_messages)
+            result = pipeline.ask_history(history, ss.token, ss.experience)
+        if result.called:
+            ss.user_msg_count += 1
+            ss.total_ak += result.estimated_ak
         if not result.ok:
             st.error(result.error + " Your message was not sent, so please try again.")
             return
 
-        reply, note = result.text, ""
-        # Defense 5: output check for leaked system-prompt text.
-        if not security.check_output(reply, prompts.SYSTEM_PROMPT):
-            reply = security.OUTPUT_BLOCK_MESSAGE
-            note = "🛡️ The reply was replaced by the output check."
+        reply = result.text
+        note = "🛡️ The reply was replaced by the output check." if result.output_blocked else ""
         st.markdown(reply)
         if note:
             st.caption(note)
 
     ss.messages.append({"role": "user", "content": check.cleaned, "blocked": False, "note": ""})
     ss.messages.append({"role": "assistant", "content": reply, "blocked": False, "note": note})
-    ss.user_msg_count += 1
-    ss.total_ak += result.estimated_ak
 
 
 top_left, title_col, top_right = st.columns([0.7, 4, 1], vertical_alignment="center")

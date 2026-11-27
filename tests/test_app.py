@@ -95,7 +95,7 @@ def test_llm_error_is_shown_and_message_not_saved(monkeypatch):
     assert not at.exception
     assert len(at.error) == 1
     assert at.session_state["messages"] == []
-    assert at.session_state["user_msg_count"] == 0
+    assert at.session_state["user_msg_count"] == 1
 
 
 def test_session_message_limit(monkeypatch):
