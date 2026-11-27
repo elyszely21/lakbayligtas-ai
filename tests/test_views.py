@@ -55,7 +55,6 @@ def test_planner_layout_has_form_and_empty_result_sections():
 
 def test_placeholder_pages_render_friendly_messages():
     for filename, title in (
-        ("gear_checklist.py", "Gear Checklist"),
         ("readiness_assessment.py", "Readiness Assessment"),
         ("safety_guide.py", "Safety Guide"),
     ):
@@ -63,6 +62,24 @@ def test_placeholder_pages_render_friendly_messages():
         assert not at.exception
         assert at.title[0].value == title
         assert "coming in the next step" in " ".join(item.value for item in at.info)
+
+
+def test_gear_checklist_page_renders_activity_checks_progress_and_download():
+    at = render_view("gear_checklist.py")
+
+    assert not at.exception
+    assert at.title[0].value == "Gear Checklist"
+    assert at.selectbox[0].label == "Activity"
+    assert len(at.checkbox) > 0
+    assert len(at.progress) == 1
+    assert at.download_button[0].label == "Download checklist (Markdown)"
+    assert any(
+        "Responsible travel / Leave No Trace" in item.value
+        for item in at.markdown
+    )
+    at.checkbox[0].check().run()
+    assert at.checkbox[0].value
+    assert at.progress[0].value > 0
 
 
 def test_home_selection_is_shared_with_planner():
