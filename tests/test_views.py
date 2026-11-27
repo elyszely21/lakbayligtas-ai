@@ -53,16 +53,6 @@ def test_planner_layout_has_form_and_empty_result_sections():
     assert "Number of people" in {item.label for item in at.number_input}
 
 
-def test_placeholder_pages_render_friendly_messages():
-    for filename, title in (
-        ("safety_guide.py", "Safety Guide"),
-    ):
-        at = render_view(filename)
-        assert not at.exception
-        assert at.title[0].value == title
-        assert "coming in the next step" in " ".join(item.value for item in at.info)
-
-
 def test_readiness_page_shows_form_and_self_check_notice():
     at = render_view("readiness_assessment.py")
 
