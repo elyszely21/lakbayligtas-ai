@@ -127,3 +127,17 @@ def test_clear_chat_resets_history_but_keeps_message_count(monkeypatch):
     assert at.session_state["messages"] == []
     assert at.session_state["token"] != old_token
     assert at.session_state["user_msg_count"] == 1
+
+
+def test_chat_header_has_assistant_subtitle_and_starters():
+    at = make_app()
+    assert not at.exception
+    assert any("Your outdoor preparation assistant" in item.value for item in at.caption)
+    assert {button.label for button in at.button}.issuperset(
+        {
+            "Plan my first hike",
+            "What should I pack?",
+            "Am I ready for a trek?",
+            "Budget-friendly trip",
+        }
+    )

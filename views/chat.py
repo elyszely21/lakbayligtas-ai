@@ -107,8 +107,11 @@ def handle(prompt):
     ss.total_ak += result.estimated_ak
 
 
-top_left, top_right = st.columns([4, 1])
-top_left.markdown("### 💬 Chat Assistant")
+top_left, title_col, top_right = st.columns([0.7, 4, 1], vertical_alignment="center")
+with top_left.container(key="chat-avatar"):
+    st.markdown("AI")
+title_col.markdown("### LakbayLigtas AI")
+title_col.caption("Your outdoor preparation assistant")
 top_right.button("Clear chat", on_click=clear_chat, use_container_width=True)
 
 for message in ss.messages:

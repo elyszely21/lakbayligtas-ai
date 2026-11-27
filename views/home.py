@@ -7,12 +7,6 @@ from core.state import init_state
 init_state()
 ss = st.session_state
 
-st.subheader("Welcome, adventurer!")
-st.write(
-    "Tell me about your trip and I'll help you prepare: a plan, a packing checklist, "
-    "a budget estimate, and a readiness check. Pick an adventure type to begin."
-)
-
 ADVENTURES = {
     "Hiking": ("🥾", "Day hikes and trail walks for all levels."),
     "Camping": ("⛺", "Overnight stays with the right gear and low-impact habits."),
@@ -20,33 +14,42 @@ ADVENTURES = {
     "Sightseeing": ("🌄", "Scenic spots and nature visits with light activity."),
 }
 
-st.markdown("#### Choose your adventure")
+st.markdown("## Welcome, adventurer!")
+st.write(
+    "Prepare for your next outdoor trip with practical planning, gear, readiness, "
+    "and safety guidance."
+)
+st.markdown("### Choose your adventure")
 cols = st.columns(4)
 for col, (name, (icon, desc)) in zip(cols, ADVENTURES.items()):
-    with col.container(border=True):
-        st.markdown(f"### {icon} {name}")
+    selected = ss.adventure == name
+    with col.container(
+        border=True,
+        key="adventure-selected" if selected else f"adventure-card-{name.lower()}",
+    ):
+        st.markdown(f"## {icon}")
+        st.markdown(f"**{name}**")
         st.caption(desc)
-        if ss.adventure == name:
-            st.success("Selected")
-        elif st.button("Select", key=f"select_{name}"):
+        if selected:
+            st.caption("Selected")
+        if st.button("Select", key=f"select_{name}", use_container_width=True):
             ss.adventure = name
+            ss.planner_adventure_type = name
             st.rerun()
 
-if st.button("START PLANNING", type="primary"):
-    kind = (ss.adventure or "outdoor").lower()
-    ss.pending_prompt = f"I want to plan a trip. Activity: {kind}. Please ask me what you need to know."
-    st.switch_page("views/chat.py")
+if st.button("START PLANNING", type="primary", use_container_width=True):
+    st.switch_page("views/adventure_planner.py")
 
-st.markdown("#### Quick access")
+st.markdown("### Quick access")
 QUICK = {
-    "Readiness Check": "Am I ready for a trek? Please check my readiness.",
-    "Gear Checklist": "What should I pack? Please give me a gear checklist.",
-    "Safety Guide": "What if our group gets separated on the trail?",
+    "Readiness Check": "views/readiness_assessment.py",
+    "Gear Checklist": "views/gear_checklist.py",
+    "Safety Guide": "views/safety_guide.py",
 }
 qcols = st.columns(3)
-for col, (label, prompt) in zip(qcols, QUICK.items()):
-    with col.container(border=True):
+for col, (label, page) in zip(qcols, QUICK.items()):
+    with col.container(border=True, key=f"quick-card-{label.lower().replace(' ', '-')}"):
         st.markdown(f"**{label}**")
-        if st.button("Open in chat", key=f"quick_{label}"):
-            ss.pending_prompt = prompt
-            st.switch_page("views/chat.py")
+        st.caption("Open practical guidance for your trip.")
+        if st.button("Open", key=f"quick_{label}", use_container_width=True):
+            st.switch_page(page)
