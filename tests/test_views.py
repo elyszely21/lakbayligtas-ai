@@ -55,13 +55,33 @@ def test_planner_layout_has_form_and_empty_result_sections():
 
 def test_placeholder_pages_render_friendly_messages():
     for filename, title in (
-        ("readiness_assessment.py", "Readiness Assessment"),
         ("safety_guide.py", "Safety Guide"),
     ):
         at = render_view(filename)
         assert not at.exception
         assert at.title[0].value == title
         assert "coming in the next step" in " ".join(item.value for item in at.info)
+
+
+def test_readiness_page_shows_form_and_self_check_notice():
+    at = render_view("readiness_assessment.py")
+
+    assert not at.exception
+    assert at.title[0].value == "Readiness Assessment"
+    assert len(at.selectbox) == 4
+    assert "How many days is your trip?" in {item.label for item in at.number_input}
+    assert at.form_submit_button[0].label == "Check my readiness"
+    assert any("This is a self-check only." in item.value for item in at.info)
+
+
+def test_readiness_page_shows_deterministic_result_after_submission():
+    at = render_view("readiness_assessment.py")
+    at.form_submit_button[0].click().run()
+
+    assert not at.exception
+    assert at.session_state["readiness_result"]["level"] == "Almost ready"
+    assert any("Almost ready" in item.value for item in at.markdown)
+    assert any("This is a self-check only." in item.value for item in at.info)
 
 
 def test_gear_checklist_page_renders_activity_checks_progress_and_download():
