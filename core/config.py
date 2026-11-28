@@ -24,6 +24,9 @@ DEFAULTS = {
     "LLM_TIMEOUT_SECONDS": "60",
     "MAX_USER_MESSAGES": "15",        # per browser session, protects shared credits
     "MAX_HISTORY_MESSAGES": "8",      # older messages are not re-sent
+    # Free backup provider (OpenAI-compatible). Used only if Aiki Labs fails.
+    "LLM_BACKUP_BASE_URL": "https://api.groq.com/openai/v1",
+    "LLM_BACKUP_MODEL": "llama-3.3-70b-versatile",  # confirm in your Groq console
 }
 
 _PLACEHOLDER_HINTS = ("paste", "your-key", "changeme", "xxxx")
@@ -64,12 +67,22 @@ def get_int(name, default=0):
         return int(default)
 
 
-def get_api_key():
-    """Return the API key, or None if it is missing or still a placeholder."""
-    key = get_setting("LLM_API_KEY")
+def _clean_key(name):
+    """Return the named key, or None if it is missing or still a placeholder."""
+    key = get_setting(name)
     if not key or not str(key).strip():
         return None
     key = str(key).strip()
     if any(hint in key.lower() for hint in _PLACEHOLDER_HINTS):
         return None
     return key
+
+
+def get_api_key():
+    """Aiki Labs key (primary provider)."""
+    return _clean_key("LLM_API_KEY")
+
+
+def get_backup_api_key():
+    """Free backup provider key (optional)."""
+    return _clean_key("LLM_BACKUP_API_KEY")
